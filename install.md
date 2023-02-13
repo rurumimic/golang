@@ -1,14 +1,5 @@
 # Install
 
-1. Install [gvm](https://github.com/moovweb/gvm)
-2. List all Go versions: `gvm listall`
-3. Install go: `gvm install goX.Y.Z --binary`
-4. Go versions: `gvm list`
-5. Select: `gvm use goX.Y.Z`
-6. Env vars: `go env`
-7. gopls: `go install golang.org/x/tools/gopls@latest`
-8. Editor extension
-
 ## Go Version Manager
 
 ```bash
@@ -23,14 +14,15 @@ zsh < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binsc
 ```bash
 # Languages
 ## Go
-source /Users/$USER/.gvm/scripts/gvm
+source $HOME/.gvm/scripts/gvm
 ```
 
 ### Install
 
 ```bash
-gvm install go1.19.4 -B
-gvm use go1.19.4 --default
+gvm listall
+gvm install go1.20 --with-protobuf --with-build-tools --prefer-binary
+gvm use go1.20 --default
 ```
 
 ### List installed
@@ -40,7 +32,7 @@ gvm list
 
 gvm gos (installed)
 
-=> go1.19.4
+=> go1.20
 ```
 
 ---
@@ -52,8 +44,8 @@ Extension: [Go](https://marketplace.visualstudio.com/items?itemName=golang.go)
 ```bash
 go env
 
-GOPATH="~/.gvm/pkgsets/go1.19.4/global"
-GOROOT="~/.gvm/gos/go1.19.4"
+GOPATH="~/.gvm/pkgsets/go1.20/global"
+GOROOT="~/.gvm/gos/go1.20"
 ```
 
 **Preferences: Configure Language Specific Settings** `⇧⌘P` → Go
@@ -61,8 +53,8 @@ GOROOT="~/.gvm/gos/go1.19.4"
 `settings.json`
 
 ```json
-  "go.gopath": "~/.gvm/pkgsets/go1.19.4/global",
-  "go.goroot": "~/.gvm/gos/go1.19.4",
+  "go.gopath": "~/.gvm/pkgsets/go1.20/global",
+  "go.goroot": "~/.gvm/gos/go1.20",
   "[go]": {
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
@@ -81,15 +73,15 @@ GOROOT="~/.gvm/gos/go1.19.4"
 VS Code should handle that step for you.
 
 ```bash
-Tools environment: GOPATH=~/.gvm/pkgsets/go1.19.4/global
-Installing 1 tool at ~/.gvm/pkgsets/go1.19.4/global/bin in module mode.
+Tools environment: GOPATH=~/.gvm/pkgsets/go1.20/global
+Installing 1 tool at ~/.gvm/pkgsets/go1.20/global/bin in module mode.
   gopls
   gopkgs
   go-outline
   dlv
   staticcheck
 
-Installing golang.org/x/tools/gopls (~/.gvm/pkgsets/go1.19.4/global/bin/gopls) SUCCEEDED
+Installing golang.org/x/tools/gopls (~/.gvm/pkgsets/go1.20/global/bin/gopls) SUCCEEDED
 # ...
 
 All tools successfully installed. You are ready to Go :).
