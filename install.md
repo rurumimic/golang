@@ -25,6 +25,17 @@ gvm install go1.20 --with-protobuf --with-build-tools --prefer-binary
 gvm use go1.20 --default
 ```
 
+#### on Apple Silicon
+
+```bash
+sudo port install go
+# install protobuf3-cpp in ~/.local/bin & ~/.local/include : grpc.io/docs/protoc-installation
+# export PATH="$PATH:$HOME/.local/bin"
+gvm install go1.20 --with-protobuf --with-build-tools
+gvm use go1.20 --default
+sudo port uninstall go
+```
+
 ### List installed
 
 ```bash
