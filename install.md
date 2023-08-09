@@ -21,8 +21,8 @@ source $HOME/.gvm/scripts/gvm
 
 ```bash
 gvm listall
-gvm install go1.20 --with-protobuf --with-build-tools --prefer-binary
-gvm use go1.20 --default
+gvm install go1.21.0 --with-protobuf --with-build-tools --prefer-binary
+gvm use go1.21.0 --default
 ```
 
 #### on Apple Silicon
@@ -31,8 +31,8 @@ gvm use go1.20 --default
 sudo port install go
 # install protobuf3-cpp in ~/.local/bin & ~/.local/include : grpc.io/docs/protoc-installation
 # export PATH="$PATH:$HOME/.local/bin"
-gvm install go1.20 --with-protobuf --with-build-tools
-gvm use go1.20 --default
+gvm install go1.21.0 --with-protobuf --with-build-tools
+gvm use go1.21.0 --default
 sudo port uninstall go
 ```
 
@@ -43,7 +43,7 @@ gvm list
 
 gvm gos (installed)
 
-=> go1.20
+=> go1.21.0
 ```
 
 ---
@@ -55,8 +55,8 @@ Extension: [Go](https://marketplace.visualstudio.com/items?itemName=golang.go)
 ```bash
 go env
 
-GOPATH="~/.gvm/pkgsets/go1.20/global"
-GOROOT="~/.gvm/gos/go1.20"
+GOPATH="~/.gvm/pkgsets/go1.21.0/global"
+GOROOT="~/.gvm/gos/go1.21.0"
 ```
 
 **Preferences: Configure Language Specific Settings** `⇧⌘P` → Go
@@ -64,8 +64,8 @@ GOROOT="~/.gvm/gos/go1.20"
 `settings.json`
 
 ```json
-  "go.gopath": "~/.gvm/pkgsets/go1.20/global",
-  "go.goroot": "~/.gvm/gos/go1.20",
+  "go.gopath": "~/.gvm/pkgsets/go1.21.0/global",
+  "go.goroot": "~/.gvm/gos/go1.21.0",
   "[go]": {
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
@@ -84,15 +84,15 @@ GOROOT="~/.gvm/gos/go1.20"
 VS Code should handle that step for you.
 
 ```bash
-Tools environment: GOPATH=~/.gvm/pkgsets/go1.20/global
-Installing 1 tool at ~/.gvm/pkgsets/go1.20/global/bin in module mode.
+Tools environment: GOPATH=~/.gvm/pkgsets/go1.21.0/global
+Installing 1 tool at ~/.gvm/pkgsets/go1.21.0/global/bin in module mode.
   gopls
   gopkgs
   go-outline
   dlv
   staticcheck
 
-Installing golang.org/x/tools/gopls (~/.gvm/pkgsets/go1.20/global/bin/gopls) SUCCEEDED
+Installing golang.org/x/tools/gopls (~/.gvm/pkgsets/go1.21.0/global/bin/gopls) SUCCEEDED
 # ...
 
 All tools successfully installed. You are ready to Go :).
