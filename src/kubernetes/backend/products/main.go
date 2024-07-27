@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func main() {
@@ -20,11 +21,10 @@ func main() {
 	products := []string{"apple", "banana", "cherry", "date", "elderberry", "fig", "grape", "honeydew", "kiwi", "lemon", "mango", "nectarine", "orange", "papaya", "quince", "raspberry", "strawberry", "tangerine", "ugli", "watermelon"}
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		t := time.Now().UnixNano() % 200
+		t := time.Now().UnixNano() % 100
 		time.Sleep(time.Duration(t) * time.Millisecond)
 
 		w.Write([]byte(products[t%int64(len(products))]))
-		w.Write([]byte("\n"))
 	})
-	http.ListenAndServe(":" + port, r)
+	http.ListenAndServe(":"+port, r)
 }
