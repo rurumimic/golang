@@ -36,6 +36,9 @@ func AsyncGet(ctx context.Context, urls ...string) <-chan Result {
 
 			select {
 			case <-ctx.Done():
+        if res != nil {
+          res.Body.Close()
+        }
 				return
 			case results <- Result{res, err, url}:
 			}
@@ -53,7 +56,7 @@ func main() {
 	r.Use(middleware.Logger)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), 120*time.Millisecond)
 		defer cancel()
 
 		contents := []Content{}
@@ -62,8 +65,8 @@ func main() {
 				contents = append(contents, Content{Url: result.Url, Body: result.Error.Error(), Ok: false})
 				continue
 			}
-			defer result.Response.Body.Close()
 			body, err := io.ReadAll(result.Response.Body)
+			result.Response.Body.Close()
 			if err != nil {
 				fmt.Println(err)
 				contents = append(contents, Content{Url: result.Url, Body: err.Error(), Ok: false})

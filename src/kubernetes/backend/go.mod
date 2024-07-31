@@ -1,4 +1,4 @@
-module backend/users
+module backends
 
 go 1.22.5
 

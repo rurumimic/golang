@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -12,18 +13,21 @@ import (
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3001"
+		port = "3002"
 	}
-
-	users := []string{"John", "Jane", "Doe", "Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Heidi"}
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
+
+	products := []string{"APPLE", "BANANA", "CHERRY", "DATE", "ELDERBERRY", "FIG", "GRAPE", "HONEYDEW", "KIWI", "LEMON", "MANGO", "NECTARINE", "ORANGE", "PAPAYA", "QUINCE", "RASPBERRY", "STRAWBERRY", "TANGERINE", "UGLI", "WATERMELON"}
+
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		t := time.Now().UnixNano() % 100
 		time.Sleep(time.Duration(t) * time.Millisecond)
 
-		w.Write([]byte(users[t%int64(len(users))]))
+		answer := []byte(products[t%int64(len(products))])
+		fmt.Println("Answer: ", string(answer))
+		w.Write(answer)
 	})
 	http.ListenAndServe(":"+port, r)
 }
