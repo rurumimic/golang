@@ -22,7 +22,7 @@ func main() {
 	products := []string{"APPLE", "BANANA", "CHERRY", "DATE", "ELDERBERRY", "FIG", "GRAPE", "HONEYDEW", "KIWI", "LEMON", "MANGO", "NECTARINE", "ORANGE", "PAPAYA", "QUINCE", "RASPBERRY", "STRAWBERRY", "TANGERINE", "UGLI", "WATERMELON"}
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		t := time.Now().UnixNano() % 100
+		t := time.Now().UnixNano() % 1000
 		time.Sleep(time.Duration(t) * time.Millisecond)
 
 		answer := []byte(products[t%int64(len(products))])

@@ -25,25 +25,34 @@ type Content struct {
 
 func AsyncGet(ctx context.Context, urls ...string) <-chan Result {
 	results := make(chan Result, len(urls))
+  done := make(chan interface{})
 
-	go func() {
-		defer close(results)
-
-		for _, url := range urls {
+	for _, url := range urls {
+		go func(url string) {
 			req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
 			client := &http.Client{}
 			res, err := client.Do(req)
 
 			select {
 			case <-ctx.Done():
-        if res != nil {
-          res.Body.Close()
-        }
+				if res != nil {
+					res.Body.Close()
+				}
 				return
 			case results <- Result{res, err, url}:
 			}
-		}
 
+      done <- struct{}{}
+		}(url)
+	}
+
+	go func() {
+		defer close(done)
+		defer close(results)
+
+		for range urls {
+			<-done
+		}
 	}()
 
 	return results
@@ -56,23 +65,37 @@ func main() {
 	r.Use(middleware.Logger)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(context.Background(), 120*time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), 7000*time.Millisecond)
 		defer cancel()
 
 		contents := []Content{}
-		for result := range AsyncGet(ctx, urls...) {
-			if result.Error != nil {
-				contents = append(contents, Content{Url: result.Url, Body: result.Error.Error(), Ok: false})
-				continue
+		results := AsyncGet(ctx, urls...)
+
+		done := make(chan interface{})
+		go func() {
+			defer close(done)
+
+			for result := range results {
+				if result.Error != nil {
+					contents = append(contents, Content{Url: result.Url, Body: result.Error.Error(), Ok: false})
+					continue
+				}
+				body, err := io.ReadAll(result.Response.Body)
+				result.Response.Body.Close()
+				if err != nil {
+					fmt.Println(err)
+					contents = append(contents, Content{Url: result.Url, Body: err.Error(), Ok: false})
+					continue
+				}
+				contents = append(contents, Content{Url: result.Url, Body: string(body), Ok: true})
 			}
-			body, err := io.ReadAll(result.Response.Body)
-			result.Response.Body.Close()
-			if err != nil {
-				fmt.Println(err)
-				contents = append(contents, Content{Url: result.Url, Body: err.Error(), Ok: false})
-				continue
-			}
-			contents = append(contents, Content{Url: result.Url, Body: string(body), Ok: true})
+		}()
+
+		select {
+		case <-ctx.Done():
+			fmt.Println("timeout")
+		case <-done:
+			fmt.Println("all received")
 		}
 
 		for _, content := range contents {
