@@ -21,7 +21,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		t := time.Now().UnixNano() % 5000
+		t := time.Now().UnixNano() % 1000
 		time.Sleep(time.Duration(t) * time.Millisecond)
 
 		answer := []byte(users[t%int64(len(users))])
