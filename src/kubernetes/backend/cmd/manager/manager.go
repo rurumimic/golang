@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -14,16 +15,20 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+const defaultPort = "3000"
+const defaultTimeout = 200
+
 type Result struct {
+	Url      string
 	Response *http.Response
 	Error    error
-	Url      string
 }
 
 type Content struct {
-	Url  string
-	Body string
-	Ok   bool
+	Url   string
+	Ok    bool
+	Body  string
+	Error string
 }
 
 func FanIn(ctx context.Context, channels ...<-chan Result) <-chan Result {
@@ -67,7 +72,7 @@ func FetchData(ctx context.Context, url string) <-chan Result {
 		req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 		if err != nil {
 			log.Printf("Error new request: %s\n", err.Error())
-			stream <- Result{nil, err, url}
+			stream <- Result{url, nil, err}
 			return
 		}
 
@@ -81,21 +86,21 @@ func FetchData(ctx context.Context, url string) <-chan Result {
 			}
 			if ctx.Err() == context.DeadlineExceeded {
 				log.Printf("WithTimeout: %s %s\n", url, ctx.Err().Error())
-				stream <- Result{nil, ctx.Err(), url}
+				stream <- Result{url, nil, ctx.Err()}
 			} else {
 				log.Printf("Error fetching data: %s %s\n", url, ctx.Err().Error())
-				stream <- Result{nil, ctx.Err(), url}
+				stream <- Result{url, nil, ctx.Err()}
 			}
 			return
 		default:
 			if err != nil {
 				log.Printf("Error fetching data! %s %s\n", url, err)
-				stream <- Result{nil, err, url}
+				stream <- Result{url, nil, err}
 				return
 			}
 
 			log.Printf("Response status: %s\n", res.Status)
-			stream <- Result{res, err, url}
+			stream <- Result{url, res, err}
 		}
 		log.Printf("Stream done\n")
 	}()
@@ -113,7 +118,7 @@ func AsyncGet(ctx context.Context, urls ...string) []Content {
 
 	for result := range FanIn(ctx, results...) {
 		if result.Error != nil {
-			contents = append(contents, Content{Url: result.Url, Body: result.Error.Error(), Ok: false})
+			contents = append(contents, Content{Url: result.Url, Ok: false, Error: result.Error.Error()})
 			continue
 		}
 
@@ -122,11 +127,11 @@ func AsyncGet(ctx context.Context, urls ...string) []Content {
 
 		if err != nil {
 			log.Printf("Error reading data: %s\n", err.Error())
-			contents = append(contents, Content{Url: result.Url, Body: err.Error(), Ok: false})
+			contents = append(contents, Content{Url: result.Url, Ok: false, Error: result.Error.Error()})
 			continue
 		}
 
-		contents = append(contents, Content{Url: result.Url, Body: string(body), Ok: true})
+		contents = append(contents, Content{Url: result.Url, Ok: true, Body: string(body)})
 	}
 
 	log.Printf("Contents: %v\n", contents)
@@ -137,11 +142,27 @@ func AsyncGet(ctx context.Context, urls ...string) []Content {
 func main() {
 	urls := []string{"http://localhost:3001", "http://localhost:3002"}
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = defaultPort
+	}
+
+	envTimeout := os.Getenv("TIMEOUT")
+  timeout := defaultTimeout
+	if envTimeout != "" {
+    parsedTimeout, err := strconv.Atoi(envTimeout)
+    if err != nil {
+      log.Fatalf("Could not parse TIMEOUT: %s\n", err.Error())
+      return
+    }
+    timeout = parsedTimeout
+	}
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Millisecond)
 		defer cancel()
 
 		contents := AsyncGet(ctx, urls...)
@@ -156,11 +177,6 @@ func main() {
 		}
 
 	})
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "3000"
-	}
 
 	log.Printf("Listening on port %s\n", port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {

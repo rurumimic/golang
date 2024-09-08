@@ -10,10 +10,12 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+const defaultPort = "3001"
+
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3001"
+		port = defaultPort
 	}
 
 	users := []string{"john", "jane", "doe", "alice", "bob", "charlie", "david", "eve", "frank", "grace", "heidi"}

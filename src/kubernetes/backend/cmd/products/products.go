@@ -10,10 +10,12 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+const defaultPort = "3002"
+
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3002"
+		port = defaultPort
 	}
 
 	r := chi.NewRouter()
